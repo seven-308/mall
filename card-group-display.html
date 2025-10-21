@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡片群组展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fafafa;
+        }
+
+        .card-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .cafe-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .card-count {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .icon-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .page-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+
+        .page-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .card-content {
+            padding: 24px;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .tag-story {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .tag-progress {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .tag-id {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .action-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .action-btn.primary {
+            background: #1890ff;
+            border-color: #1890ff;
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: #40a9ff;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .card-slide {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <div class="card-header">
+            <div class="card-info">
+                <div class="cafe-icon">☕</div>
+                <span class="card-count">关联4张iCafe卡片</span>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="refreshCards()" title="刷新">
+                    🔄
+                </button>
+                <button class="icon-btn" onclick="addCard()" title="添加">
+                    ➕
+                </button>
+                <div class="pagination">
+                    <button class="page-btn" onclick="prevCard()" id="prevBtn">◀</button>
+                    <span id="pageInfo">1/4</span>
+                    <button class="page-btn" onclick="nextCard()" id="nextBtn">▶</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-content" id="cardContent">
+            <div class="card-tags">
+                <span class="tag tag-story">Story</span>
+                <span class="tag tag-progress">进行中</span>
+                <span class="tag tag-id">WF-1234</span>
+            </div>
+            <div class="card-title">用户登录功能优化</div>
+            <div class="card-actions">
+                <button class="action-btn primary" onclick="copyCard()" title="复制">
+                    📋
+                </button>
+                <button class="action-btn" onclick="shareCard()" title="分享">
+                    🔗
+                </button>
+                <button class="action-btn" onclick="linkProject()" title="关联项目">
+                    📎
+                </button>
+                <button class="action-btn" onclick="moreActions()" title="更多">
+                    ⋯
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const cards = [
+            {
+                type: 'Story',
+                status: '进行中',
+                id: 'WF-1234',
+                title: '用户登录功能优化'
+            },
+            {
+                type: 'Task',
+                status: '待处理',
+                id: 'WF-1235',
+                title: '数据库性能优化'
+            },
+            {
+                type: 'Bug',
+                status: '已解决',
+                id: 'WF-1236',
+                title: '修复支付接口异常'
+            },
+            {
+                type: 'Story',
+                status: '进行中',
+                id: 'WF-1237',
+                title: '实现消息推送功能'
+            }
+        ];
+
+        let currentCardIndex = 0;
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        function updateCard() {
+            const card = cards[currentCardIndex];
+            const content = document.getElementById('cardContent');
+            content.classList.remove('card-slide');
+            
+            setTimeout(() => {
+                content.innerHTML = `
+                    <div class="card-tags">
+                        <span class="tag tag-story">${card.type}</span>
+                        <span class="tag tag-progress">${card.status}</span>
+                        <span class="tag tag-id">${card.id}</span>
+                    </div>
+                    <div class="card-title">${card.title}</div>
+                    <div class="card-actions">
+                        <button class="action-btn primary" onclick="copyCard()" title="复制">
+                            📋
+                        </button>
+                        <button class="action-btn" onclick="shareCard()" title="分享">
+                            🔗
+                        </button>
+                        <button class="action-btn" onclick="linkProject()" title="关联项目">
+                            📎
+                        </button>
+                        <button class="action-btn" onclick="moreActions()" title="更多">
+                            ⋯
+                        </button>
+                    </div>
+                `;
+                content.classList.add('card-slide');
+            }, 50);
+
+            document.getElementById('pageInfo').textContent = `${currentCardIndex + 1}/${cards.length}`;
+            document.getElementById('prevBtn').disabled = currentCardIndex === 0;
+            document.getElementById('nextBtn').disabled = currentCardIndex === cards.length - 1;
+        }
+
+        function nextCard() {
+            if (currentCardIndex < cards.length - 1) {
+                currentCardIndex++;
+                updateCard();
+            }
+        }
+
+        function prevCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                updateCard();
+            }
+        }
+
+        function refreshCards() {
+            showNotification('已刷新卡片列表');
+            updateCard();
+        }
+
+        function addCard() {
+            showNotification('打开添加卡片对话框');
+        }
+
+        function copyCard() {
+            const card = cards[currentCardIndex];
+            const text = `${card.type} - ${card.id}: ${card.title}`;
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('已复制到剪贴板');
+            });
+        }
+
+        function shareCard() {
+            showNotification('打开分享选项');
+        }
+
+        function linkProject() {
+            showNotification('打开关联项目对话框');
+        }
+
+        function moreActions() {
+            showNotification('显示更多操作');
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevCard();
+            } else if (e.key === 'ArrowRight') {
+                nextCard();
+            } else if (e.key === 'r' && e.ctrlKey) {
+                e.preventDefault();
+                refreshCards();
+            }
+        });
+
+        // 初始化
+        updateCard();
+    </script>
+</body>
+</html>
